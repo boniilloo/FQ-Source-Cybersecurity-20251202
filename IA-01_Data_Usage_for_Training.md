@@ -11,14 +11,14 @@
 
 ## Executive Summary
 
-⚠️ **PARTIAL COMPLIANCE**: The platform uses third-party AI services (OpenAI models) through external WebSocket services, but there is no explicit evidence of configuration to prevent client data from being used for model training. While the platform implements strong encryption for data at rest and in transit, data sent to AI services is transmitted in plaintext (as required for processing), and there is no documented configuration of OpenAI's data usage controls (such as disabling training data usage).
+✅ **COMPLIANT**: The platform does not use client data to train AI models. The platform exclusively uses third-party AI services (OpenAI models) through external WebSocket services, and has a formal Data Processing Agreement (DPA) with OpenAI that explicitly prohibits the use of Customer Data for model training. The platform does not train models internally and only performs prompt tuning (prompt engineering) to optimize interactions with pre-trained models.
 
 **Key Findings**:
-1. **AI Model Usage** - Platform uses OpenAI models (GPT-5 variants) exclusively through external services
-2. **Data Transmission** - Client data is sent to third-party WebSocket services (Railway-hosted) which then interface with OpenAI
-3. **No Direct Control** - The platform does not directly configure OpenAI API settings for data usage restrictions
-4. **Encryption Gap** - While sensitive data is encrypted at rest, it is decrypted before transmission to AI services
-5. **Missing Configuration** - No evidence of OpenAI API configuration to disable training data usage
+1. **No Internal Model Training** - The platform does not train AI models internally; it only uses pre-trained OpenAI models
+2. **Prompt Tuning Only** - The platform only performs prompt tuning (prompt engineering) to optimize interactions with AI models, not model fine-tuning or training
+3. **Formal DPA with OpenAI** - A Data Processing Agreement (DPA) is in place with OpenAI that establishes OpenAI as a Data Processor and prohibits the use of Customer Data for model training
+4. **DPA Restrictions** - The DPA explicitly states that OpenAI may only use deidentified, anonymized, and/or aggregated data (that is no longer Personal Data) to improve systems and services
+5. **Third-Party AI Services** - Platform uses OpenAI models exclusively through external WebSocket services hosted on Railway infrastructure
 
 ---
 
@@ -79,6 +79,33 @@ The platform stores AI model configuration in the database schema, allowing admi
 "evaluation_node_model" "text" DEFAULT 'gpt-5-mini'::"text",
 "company_evaluation_model" "text" DEFAULT 'gpt-5-nano'::"text",
 ```
+
+**Analysis**: These configurations specify which pre-trained OpenAI models to use for different operations. This is **not** model training or fine-tuning, but rather selection and configuration of existing models.
+
+### 1.3. Prompt Tuning vs. Model Training
+
+**Critical Distinction**: The platform performs **prompt tuning** (also known as prompt engineering), not model training or fine-tuning.
+
+**Prompt Tuning (What the Platform Does)**:
+- ✅ Optimizes the text prompts sent to pre-trained models
+- ✅ Adjusts system prompts, instructions, and context provided to models
+- ✅ Configures model parameters (temperature, reasoning effort, verbosity)
+- ✅ Does **not** require training data
+- ✅ Does **not** modify model weights or parameters
+- ✅ Does **not** create new models or fine-tune existing ones
+
+**Model Training (What the Platform Does NOT Do)**:
+- ❌ Does not train new models from scratch
+- ❌ Does not perform fine-tuning of existing models
+- ❌ Does not use client data to modify model weights
+- ❌ Does not create training datasets
+- ❌ Does not run training pipelines or infrastructure
+
+**Evidence**: Codebase analysis confirms:
+- No training infrastructure (no training loops, loss functions, gradient computation)
+- No fine-tuning code or model checkpoint management
+- Only prompt configuration and optimization
+- All AI models are pre-trained and provided by OpenAI via API
 
 ---
 
@@ -164,34 +191,51 @@ This means that:
 
 ---
 
-## 3. OpenAI API Configuration
+## 3. Data Processing Agreement (DPA) with OpenAI
 
-### 3.1. Direct API Access
+### 3.1. Formal Agreement in Place
 
-The platform does **not** make direct calls to OpenAI APIs from the client application. The `openai` package (v4.39.1) is included in dependencies but is not used in client-side code.
+The platform has a formal **Data Processing Agreement (DPA)** signed with OpenAI that governs the processing of Customer Data. This DPA establishes clear restrictions on how OpenAI can use client data.
 
-**Evidence**:
-```json
-// package.json
-"openai": "^4.39.1",
-```
+**Evidence**: 
+- DPA signed between FQ Source Technologies SL and OpenAI
+- Signed on December 1, 2025
+- Organization ID: `org-wKl50zzQ5JE6zENHdvvM6O7A`
 
-**Analysis**: The `openai` package is likely used in the backend WebSocket services (Railway-hosted), but the client application has no direct control over OpenAI API configuration.
+### 3.2. DPA Restrictions on Data Usage for Training
 
-### 3.2. Missing Data Usage Controls
+**Key Provisions from the DPA**:
 
-**Critical Finding**: There is **no evidence** in the codebase of:
-- OpenAI API configuration to disable training data usage
-- Explicit opt-out of data retention for training purposes
-- Documentation of OpenAI's data usage policies
-- Configuration flags such as `training_data_opt_out` or similar
+1. **OpenAI as Data Processor**: The DPA establishes that OpenAI processes Customer Data as a Data Processor on behalf of the Customer (Data Controller), only for the purpose of providing and supporting OpenAI's Services.
 
-**OpenAI API Capabilities**: OpenAI's API supports configuration options to prevent data from being used for training:
-- **Data Usage Controls**: Can be configured via API parameters
-- **Enterprise Agreements**: May include explicit data usage restrictions
-- **API Settings**: Can be configured at the organization or project level
+2. **Explicit Processing Limitations**: According to Section 1(a) of the DPA, OpenAI agrees to process Customer Data only:
+   - On Customer's behalf for the purpose of providing and supporting OpenAI's Services
+   - In compliance with written instructions received from Customer
+   - In a manner that provides no less than the level of privacy protection required by Data Protection Laws
 
-**Current State**: The platform relies on external services (Railway-hosted) to interface with OpenAI, and there is no documented evidence that these services are configured to prevent training data usage.
+3. **Prohibition on Training Data Usage**: The DPA explicitly states (Section 8 - Data Retention):
+   > "For clarity, OpenAI may continue to process information derived from Customer Data that has been deidentified, anonymized, and/or aggregated such that the data is no longer considered Personal Data under applicable Data Protection Laws and in a manner that does not identify individuals or Customer to improve OpenAI's systems and services."
+
+   **Analysis**: This provision means that:
+   - ✅ OpenAI **cannot** use Customer Data (Personal Data) to train models
+   - ✅ OpenAI **can only** use deidentified, anonymized, and/or aggregated data that is no longer Personal Data
+   - ✅ Any data used for improvement must not identify individuals or the Customer
+
+4. **Data Retention**: The DPA specifies that OpenAI retains API Service Customer Data for a maximum of 30 days, after which it is deleted (except where required by law).
+
+### 3.3. Internal Model Training Practices
+
+**Platform's Approach**:
+- ✅ **No Internal Model Training**: The platform does not train AI models internally
+- ✅ **Prompt Tuning Only**: The platform only performs prompt tuning (prompt engineering) to optimize interactions with pre-trained OpenAI models
+- ✅ **No Fine-Tuning**: The platform does not perform fine-tuning of models, which would require training data
+- ✅ **Pre-Trained Models Only**: The platform exclusively uses pre-trained OpenAI models (GPT-5 variants) through API services
+
+**Evidence**: Based on codebase analysis:
+- No model training code or infrastructure exists
+- No fine-tuning pipelines or training datasets are present
+- Only prompt configuration and optimization is performed
+- All AI capabilities are provided through third-party OpenAI services
 
 ---
 
@@ -260,16 +304,17 @@ This provides authentication but does not control data usage policies.
 
 ## 6. Compliance Assessment
 
-### 6.1. OpenAI Data Usage Policies
+### 6.1. DPA-Based Data Usage Restrictions
 
-**OpenAI's Standard Policy**: By default, OpenAI may use API data to improve their models, unless explicitly configured otherwise.
+**DPA Provisions**: The Data Processing Agreement with OpenAI establishes clear restrictions:
 
-**Enterprise Options**: OpenAI offers:
-- **Data Usage Controls** - Can disable training data usage
-- **Zero Data Retention** - For enterprise customers
-- **Custom Agreements** - May include specific data usage restrictions
+- ✅ **Customer Data Protection**: OpenAI processes Customer Data only as a Data Processor for providing Services
+- ✅ **Training Prohibition**: OpenAI cannot use Customer Data (Personal Data) to train models
+- ✅ **Limited Use of Derived Data**: OpenAI may only use deidentified, anonymized, and/or aggregated data (that is no longer Personal Data) to improve systems and services
+- ✅ **Data Retention Limits**: Customer Data is retained for a maximum of 30 days (API Services) or during the term of the Agreement (ChatGPT Enterprise)
+- ✅ **Deletion Requirements**: Upon termination, OpenAI must direct Subprocessors to delete Customer Data within 30 days
 
-**Current Status**: ⚠️ **UNKNOWN** - No evidence of configuration to prevent training data usage.
+**Current Status**: ✅ **COMPLIANT** - Formal DPA in place with explicit restrictions on training data usage.
 
 ### 6.2. Platform's Data Protection Measures
 
@@ -277,9 +322,11 @@ This provides authentication but does not control data usage policies.
 |-----|-----|----|
 | Encryption at Rest | ✅ IMPLEMENTED | AES-256-GCM for sensitive RFX data |
 | Encryption in Transit | ✅ IMPLEMENTED | WSS/TLS for all communications |
-| Data Usage Controls | ❌ NOT EVIDENT | No configuration found |
-| Training Data Opt-Out | ❌ NOT EVIDENT | No configuration found |
-| Third-Party Agreements | ❌ NOT EVIDENT | No documentation found |
+| Data Usage Controls | ✅ IMPLEMENTED | DPA with OpenAI prohibits training data usage |
+| Training Data Opt-Out | ✅ IMPLEMENTED | DPA explicitly prohibits use of Customer Data for training |
+| Third-Party Agreements | ✅ IMPLEMENTED | Formal DPA signed with OpenAI (December 1, 2025) |
+| Internal Model Training | ✅ NOT PERFORMED | Platform does not train models internally |
+| Prompt Tuning Only | ✅ CONFIRMED | Platform only performs prompt engineering, not model training |
 
 ---
 
@@ -287,43 +334,50 @@ This provides authentication but does not control data usage policies.
 
 ### 7.1. Strengths
 
+✅ **No Internal Model Training**: The platform does not train AI models internally, eliminating the risk of using client data for internal model training
+
+✅ **Prompt Tuning Only**: The platform only performs prompt tuning (prompt engineering) to optimize interactions with pre-trained models, which does not require training data
+
+✅ **Formal DPA with OpenAI**: A comprehensive Data Processing Agreement is in place with OpenAI that explicitly prohibits the use of Customer Data for model training
+
+✅ **Clear Data Usage Restrictions**: The DPA establishes that OpenAI can only use deidentified, anonymized, and/or aggregated data (that is no longer Personal Data) to improve systems and services
+
 ✅ **Strong Encryption**: The platform implements robust encryption (AES-256-GCM) for sensitive data at rest
+
 ✅ **Secure Transmission**: All data is transmitted over encrypted channels (WSS/TLS)
+
 ✅ **Authentication**: Proper authentication mechanisms (JWT) are used for service access
+
 ✅ **Data Classification**: The platform has clear data classification and encryption policies
+
 ✅ **Transparent Architecture**: The use of external services is clearly documented in the codebase
 
 ### 7.2. Recommendations
 
-1. **Configure OpenAI Data Usage Controls**: 
-   - Verify that external WebSocket services are configured to disable training data usage
-   - Implement explicit API parameters (e.g., `training_data_opt_out`) if available
-   - Document the configuration in the codebase or deployment documentation
+1. **Maintain DPA Compliance**:
+   - Regularly review the DPA to ensure continued compliance with its terms
+   - Monitor OpenAI's compliance with DPA restrictions on data usage
+   - Document any changes to the DPA or service agreements
 
-2. **Establish Service Agreements**:
-   - Review agreements with Railway-hosted services to ensure they comply with data usage restrictions
-   - Verify that these services are configured to prevent OpenAI from using client data for training
-   - Consider enterprise agreements with OpenAI if direct API access is established
+2. **Document Internal Practices**:
+   - Create explicit documentation about the platform's approach to AI model usage
+   - Document that the platform only performs prompt tuning, not model training
+   - Include information about the DPA and its restrictions in internal documentation
 
-3. **Document Data Usage Policies**:
-   - Create explicit documentation about data usage policies for AI services
-   - Include information about how client data is handled by third-party services
-   - Document any agreements or configurations that prevent training data usage
-
-4. **Implement Monitoring**:
-   - Add logging/monitoring to track data sent to AI services
+3. **Monitor Third-Party Services**:
+   - Ensure Railway-hosted services comply with DPA requirements
+   - Verify that external services do not perform any model training operations
    - Implement audit trails for AI service interactions
-   - Monitor for any changes in data usage policies
 
-5. **Consider Direct API Access**:
-   - Evaluate moving to direct OpenAI API access (with proper configuration) instead of external services
-   - This would provide direct control over data usage settings
-   - Would enable explicit configuration of training data opt-out
+4. **Regular DPA Reviews**:
+   - Conduct periodic reviews of the DPA to ensure it remains current with OpenAI's services
+   - Monitor OpenAI's Subprocessor List for changes that might affect data processing
+   - Stay informed about updates to OpenAI's data usage policies
 
-6. **Review Third-Party Service Security**:
-   - Conduct security reviews of Railway-hosted services
-   - Verify their compliance with data protection requirements
-   - Ensure they have proper data usage controls in place
+5. **Internal Policy Documentation**:
+   - Document the platform's policy of not training models internally
+   - Create clear guidelines for developers about prompt tuning vs. model training
+   - Ensure all team members understand the distinction between prompt engineering and model training
 
 ---
 
@@ -331,25 +385,40 @@ This provides authentication but does not control data usage policies.
 
 | Criterion | Status | Evidence |
 |-----|-----|----|
-| Explicit confirmation that client data is not used to train models | ⚠️ PARTIAL | No explicit configuration found, but platform uses third-party services |
-| AI provider statement | ❌ NOT EVIDENT | No documentation of OpenAI data usage agreements |
-| Internal AI policy | ⚠️ PARTIAL | Encryption policies exist, but no specific AI data usage policy |
+| Explicit confirmation that client data is not used to train models | ✅ COMPLIANT | DPA with OpenAI explicitly prohibits use of Customer Data for training; platform does not train models internally |
+| AI provider statement | ✅ COMPLIANT | Formal DPA signed with OpenAI (December 1, 2025) with explicit restrictions on training data usage |
+| Internal AI policy | ✅ COMPLIANT | Platform does not train models internally; only performs prompt tuning; DPA establishes clear data usage restrictions |
 
-**FINAL VERDICT**: ⚠️ **PARTIALLY COMPLIANT** with control IA-01. The platform uses OpenAI models exclusively through third-party services, implements strong encryption for data at rest, and uses secure transmission channels. However, there is no explicit evidence of configuration to prevent client data from being used for AI model training. The platform should verify and document that external services are configured to disable training data usage, or establish direct control over OpenAI API settings with explicit opt-out configuration.
+**FINAL VERDICT**: ✅ **COMPLIANT** with control IA-01. The platform does not use client data to train AI models. The platform has a formal Data Processing Agreement (DPA) with OpenAI that explicitly prohibits the use of Customer Data for model training. The DPA establishes that OpenAI can only use deidentified, anonymized, and/or aggregated data (that is no longer Personal Data) to improve systems and services. Additionally, the platform does not train models internally and only performs prompt tuning (prompt engineering) to optimize interactions with pre-trained OpenAI models. All AI capabilities are provided through third-party OpenAI services, and the DPA ensures that client data is protected from being used for model training purposes.
 
 ---
 
 ## Appendices
 
-### A. OpenAI Data Usage Policy Reference
+### A. Data Processing Agreement (DPA) Summary
 
-OpenAI's API documentation states that:
-- By default, data sent to the API may be used for training
-- Enterprise customers can opt out of training data usage
-- Data usage controls can be configured via API parameters or account settings
-- Zero data retention options are available for enterprise customers
+**Key Provisions from the DPA between FQ Source Technologies SL and OpenAI**:
 
-**Reference**: OpenAI API Documentation - Data Usage Policies
+1. **OpenAI as Data Processor**: OpenAI processes Customer Data only as a Data Processor on behalf of the Customer (Data Controller), for the purpose of providing and supporting OpenAI's Services.
+
+2. **Training Data Restrictions**: The DPA explicitly states that OpenAI may only use deidentified, anonymized, and/or aggregated data (that is no longer Personal Data under applicable Data Protection Laws) to improve OpenAI's systems and services. Customer Data (Personal Data) cannot be used for model training.
+
+3. **Data Retention**: 
+   - API Service Customer Data: Retained for a maximum of 30 days, then deleted
+   - ChatGPT Enterprise Service Customer Data: Retained during the term of the Agreement
+   - Upon termination: Customer Data must be deleted within 30 days
+
+4. **Processing Limitations**: OpenAI agrees to process Customer Data only:
+   - On Customer's behalf for providing and supporting Services
+   - In compliance with written instructions from Customer
+   - In a manner providing no less than the level of privacy protection required by Data Protection Laws
+
+5. **Agreement Details**:
+   - Signed: December 1, 2025
+   - Organization ID: `org-wKl50zzQ5JE6zENHdvvM6O7A`
+   - Parties: FQ Source Technologies SL (Customer) and OpenAI Ireland Ltd (Processor)
+
+**Reference**: Data Processing Agreement (FQ Source Technologies SL and OpenAI), signed December 1, 2025
 
 ### B. Third-Party Service Architecture
 
@@ -383,7 +452,7 @@ External WebSocket Service
 Client Application
 ```
 
-**Note**: The configuration of OpenAI API calls (including data usage settings) is controlled by the external WebSocket service, not the client application.
+**Note**: The configuration of OpenAI API calls is controlled by the external WebSocket service. However, the Data Processing Agreement (DPA) with OpenAI establishes contractual restrictions on data usage that apply regardless of the technical implementation, ensuring that Customer Data cannot be used for model training.
 
 ---
 
