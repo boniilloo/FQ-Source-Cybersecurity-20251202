@@ -11,9 +11,9 @@
 
 This audit evaluates the governance mechanisms for system prompt modifications in the AI agent platform. The control assesses who can modify the behavior of the AI agent through system prompt changes and how these changes are managed, versioned, and applied.
 
-**Compliance Status**: ⚠️ **PARTIALLY COMPLIANT**
+**Compliance Status**: ✅ **COMPLIANT**
 
-The platform implements frontend access controls restricting prompt modifications to developers only, and maintains a comprehensive versioning system for prompt changes. However, database-level Row Level Security (RLS) policies allow any authenticated user to modify prompts, creating a security gap that could be exploited if the frontend controls are bypassed.
+The platform implements comprehensive access controls at both frontend and database levels, restricting prompt modifications to developers only. The system maintains a complete versioning system for prompt changes with full audit trails, change documentation, and restoration capabilities.
 
 ---
 
@@ -68,33 +68,36 @@ const { data, error } = await supabase
 
 ### 1.2. Database-Level Access Control
 
-The `agent_prompt_backups_v2` table has Row Level Security (RLS) enabled, but the policies allow any authenticated user to view, create, and update prompt backups.
+The `agent_prompt_backups_v2` table has Row Level Security (RLS) enabled with policies that restrict access to developers only, using the `has_developer_access()` function to verify developer status.
 
 **RLS Policies**:
 ```sql
--- supabase/migrations/20251121132118_remote_schema_baseline.sql
+-- supabase/migrations/20251201170003_restrict_agent_prompt_backups_to_developers.sql
 
--- Allow authenticated users to view backups
-CREATE POLICY "Allow authenticated users to view backups v2" 
+-- Allow developers to view backups
+CREATE POLICY "Allow developers to view backups v2" 
   ON "public"."agent_prompt_backups_v2" 
-  FOR SELECT TO "authenticated" 
-  USING (true);
+  FOR SELECT 
+  TO "authenticated" 
+  USING (has_developer_access());
 
--- Allow authenticated users to create backups
-CREATE POLICY "Allow authenticated users to create backups v2" 
+-- Allow developers to create backups
+CREATE POLICY "Allow developers to create backups v2" 
   ON "public"."agent_prompt_backups_v2" 
-  FOR INSERT TO "authenticated" 
-  WITH CHECK (true);
+  FOR INSERT 
+  TO "authenticated" 
+  WITH CHECK (has_developer_access());
 
--- Allow authenticated users to update backups
-CREATE POLICY "Allow authenticated users to update backups v2" 
+-- Allow developers to update backups
+CREATE POLICY "Allow developers to update backups v2" 
   ON "public"."agent_prompt_backups_v2" 
-  FOR UPDATE TO "authenticated" 
-  USING (true) 
-  WITH CHECK (true);
+  FOR UPDATE 
+  TO "authenticated" 
+  USING (has_developer_access()) 
+  WITH CHECK (has_developer_access());
 ```
 
-**Security Gap**: These policies do not restrict access to developers only. Any authenticated user could potentially modify prompts by directly accessing the database API, bypassing the frontend controls.
+**Security Implementation**: These policies enforce developer-only access at the database level, preventing unauthorized prompt modifications even if frontend controls are bypassed. The `has_developer_access()` function checks the `developer_access` table to verify the user's developer status, ensuring consistent security across all access points.
 
 ---
 
@@ -331,11 +334,11 @@ The Settings interface provides:
 ✅ **Developer Verification**: Uses `developer_access` table to verify developer status  
 ✅ **Route Guard**: Automatic redirect to home page for non-developers  
 
-### 5.2. Access Control Weaknesses
+### 5.2. Database-Level Access Control Strengths
 
-❌ **Database RLS Gap**: RLS policies allow any authenticated user to modify prompts  
-❌ **No Developer Check in RLS**: Policies use `USING (true)` instead of `has_developer_access()`  
-❌ **Potential Bypass**: Direct database API access could bypass frontend controls  
+✅ **Database RLS Protection**: RLS policies restrict access to developers only using `has_developer_access()`  
+✅ **Consistent Security**: Database-level checks align with frontend access controls  
+✅ **Bypass Prevention**: Direct database API access is blocked for non-developers  
 
 ### 5.3. Versioning Strengths
 
@@ -357,7 +360,7 @@ The Settings interface provides:
 
 | Criterion | Status | Evidence |
 |-----|-----|----|
-| Access control restricts prompt modifications to authorized personnel | ⚠️ PARTIAL | Frontend protection exists, but database RLS allows all authenticated users |
+| Access control restricts prompt modifications to authorized personnel | ✅ COMPLIANT | Frontend and database RLS both restrict access to developers only |
 | Prompt changes are versioned and tracked | ✅ COMPLIANT | Complete versioning system with history, timestamps, and user attribution |
 | Change history is maintained and auditable | ✅ COMPLIANT | All changes preserved with timestamps, user names, and comments |
 | Active configuration is clearly identified | ✅ COMPLIANT | `is_active` flag identifies current configuration |
@@ -383,7 +386,7 @@ The Settings interface provides:
 
 ### 7.2. Recommendations
 
-1. **Strengthen Database RLS Policies**: Update Row Level Security policies on `agent_prompt_backups_v2` to restrict access to developers only using the `has_developer_access()` function. This prevents potential bypass of frontend controls through direct database API access.
+1. ✅ **Strengthen Database RLS Policies**: ~~Update Row Level Security policies on `agent_prompt_backups_v2` to restrict access to developers only using the `has_developer_access()` function. This prevents potential bypass of frontend controls through direct database API access.~~ **IMPLEMENTED** - Migration `20251201170003_restrict_agent_prompt_backups_to_developers.sql` has been applied, restricting all RLS policies to developers only.
 
 2. **Implement Audit Logging**: Consider adding a separate audit log table that records all prompt modification attempts (both successful and failed) for enhanced security monitoring.
 
@@ -399,7 +402,7 @@ The Settings interface provides:
 
 | Criterion | Status | Evidence |
 |-----|-----|----|
-| Access control restricts modifications to authorized personnel | ⚠️ PARTIAL | Frontend: ✅ Developer-only access. Database: ❌ All authenticated users |
+| Access control restricts modifications to authorized personnel | ✅ COMPLIANT | Frontend: ✅ Developer-only access. Database: ✅ Developer-only access via `has_developer_access()` |
 | Prompt changes are versioned | ✅ COMPLIANT | Complete versioning with `agent_prompt_backups_v2` table |
 | Change history is maintained | ✅ COMPLIANT | All changes preserved with metadata |
 | Active configuration identified | ✅ COMPLIANT | `is_active` flag mechanism |
@@ -407,7 +410,25 @@ The Settings interface provides:
 | Changes require documentation | ✅ COMPLIANT | Mandatory comment field |
 | Agent reads active prompts | ✅ COMPLIANT | Agent retrieves active config on connection |
 
-**FINAL VERDICT**: ⚠️ **PARTIALLY COMPLIANT** with control IA-07. The platform implements strong frontend access controls and comprehensive versioning, but database-level RLS policies create a security gap that could allow unauthorized prompt modifications if frontend controls are bypassed. The recommendation is to strengthen database RLS policies to align with frontend access controls.
+**FINAL VERDICT**: ✅ **COMPLIANT** with control IA-07. The platform implements comprehensive access controls at both frontend and database levels, restricting prompt modifications to developers only. The system maintains complete versioning with full audit trails, change documentation, and restoration capabilities. Database RLS policies have been strengthened to use `has_developer_access()`, ensuring consistent security across all access points.
+
+---
+
+## 9. Remediation Actions
+
+### 9.1. Database RLS Policy Update
+
+**Date**: December 1, 2025  
+**Migration**: `20251201170003_restrict_agent_prompt_backups_to_developers.sql`
+
+**Actions Taken**:
+1. Removed permissive RLS policies that allowed all authenticated users to access `agent_prompt_backups_v2`
+2. Implemented developer-only RLS policies using `has_developer_access()` function
+3. Applied policies for SELECT, INSERT, and UPDATE operations
+
+**Result**: Database-level access control now aligns with frontend access controls, preventing unauthorized prompt modifications even if frontend controls are bypassed.
+
+**Verification**: All three RLS policies (`Allow developers to view backups v2`, `Allow developers to create backups v2`, `Allow developers to update backups v2`) now use `has_developer_access()` to restrict access to developers only.
 
 ---
 
@@ -426,7 +447,8 @@ The Settings interface provides:
 - Multiple prompt fields for different agent components
 
 **RLS Status**: Enabled  
-**RLS Policies**: Allow all authenticated users (needs restriction to developers)
+**RLS Policies**: Restricted to developers only using `has_developer_access()` function  
+**Migration**: `20251201170003_restrict_agent_prompt_backups_to_developers.sql` (applied December 1, 2025)
 
 ### B. Access Control Flow
 
