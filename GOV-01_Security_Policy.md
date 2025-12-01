@@ -37,9 +37,9 @@ The platform maintains a formal security policy document located at `.cursor/rul
 ---
 alwaysApply: true
 ---
-# Protocolo de Ciberseguridad y Criptografía
+# Cybersecurity and Cryptography Protocol
 
-Este documento define los estándares de seguridad obligatorios para el desarrollo de la plataforma. El objetivo es garantizar la confidencialidad, integridad y disponibilidad de los datos mediante el uso de criptografía robusta y prácticas de desarrollo seguro.
+This document defines the mandatory security standards for platform development. The objective is to guarantee the confidentiality, integrity, and availability of data through the use of robust cryptography and secure development practices.
 ```
 
 ### 1.2. Policy Scope and Objectives
@@ -53,9 +53,9 @@ The policy explicitly defines its purpose and scope:
 
 **Evidence**:
 ```markdown
-# Protocolo de Ciberseguridad y Criptografía
+# Cybersecurity and Cryptography Protocol
 
-Este documento define los estándares de seguridad obligatorios para el desarrollo de la plataforma. El objetivo es garantizar la confidencialidad, integridad y disponibilidad de los datos mediante el uso de criptografía robusta y prácticas de desarrollo seguro.
+This document defines the mandatory security standards for platform development. The objective is to guarantee the confidentiality, integrity, and availability of data through the use of robust cryptography and secure development practices.
 ```
 
 ---
@@ -74,12 +74,12 @@ The policy mandates specific symmetric encryption standards:
 
 **Evidence**:
 ```markdown
-### 1.1. Cifrado Simétrico (AES)
-Se utilizará **AES-256-GCM** (Advanced Encryption Standard en modo Galois/Counter) para el cifrado de datos en reposo y datos sensibles almacenados localmente.
-*   **Uso:** Protección de datos PII (Información Personal Identificable) en base de datos, claves de API almacenadas, y tokens de sesión en almacenamiento local.
-*   **Implementación Cliente:** Usar `window.crypto.subtle` (Web Crypto API).
-*   **Implementación Servidor/Edge:** Usar librerías nativas o `crypto` de Node/Deno.
-*   **Claves:** Deben ser de 256 bits. Nunca deben almacenarse junto con los datos cifrados.
+### 1.1. Symmetric Encryption (AES)
+**AES-256-GCM** (Advanced Encryption Standard in Galois/Counter mode) will be used for encryption of data at rest and sensitive data stored locally.
+*   **Use:** Protection of PII (Personally Identifiable Information) data in database, stored API keys, and session tokens in local storage.
+*   **Client Implementation:** Use `window.crypto.subtle` (Web Crypto API).
+*   **Server/Edge Implementation:** Use native libraries or `crypto` from Node/Deno.
+*   **Keys:** Must be 256 bits. Must never be stored alongside encrypted data.
 ```
 
 ### 2.2. Asymmetric Encryption (RSA)
@@ -94,11 +94,11 @@ The policy defines asymmetric encryption requirements:
 
 **Evidence**:
 ```markdown
-### 1.2. Cifrado Asimétrico (RSA)
-Se utilizará **RSA-OAEP** con claves de **4096 bits** para cifrado/descifrado y **RSA-PSS** para firmas digitales.
-*   **Uso:** Intercambio seguro de claves, firmas digitales de documentos/contratos, y comunicación segura entre partes sin secreto compartido previo.
-*   **Generación:** Las pares de claves deben generarse preferiblemente en el cliente para asegurar que la clave privada nunca abandone el dispositivo del usuario (si aplica E2EE).
-*   **Formato:** PEM para exportación/almacenamiento, DER para transmisión binaria.
+### 1.2. Asymmetric Encryption (RSA)
+**RSA-OAEP** with **4096-bit** keys will be used for encryption/decryption and **RSA-PSS** for digital signatures.
+*   **Use:** Secure key exchange, digital signatures for documents/contracts, and secure communication between parties without prior shared secret.
+*   **Generation:** Key pairs should preferably be generated on the client to ensure the private key never leaves the user's device (if E2EE applies).
+*   **Format:** PEM for export/storage, DER for binary transmission.
 ```
 
 ### 2.3. Hashing Standards
@@ -111,8 +111,8 @@ The policy specifies hashing requirements:
 **Evidence**:
 ```markdown
 ### 1.3. Hashing
-*   **Contraseñas:** Delegar siempre en Supabase Auth (usa bcrypt/argon2).
-*   **Integridad de Datos:** SHA-256 o SHA-512.
+*   **Passwords:** Always delegate to Supabase Auth (uses bcrypt/argon2).
+*   **Data Integrity:** SHA-256 or SHA-512.
 ```
 
 ---
@@ -130,12 +130,12 @@ The policy establishes a formal data classification framework:
 
 **Evidence**:
 ```markdown
-### 2.1. Clasificación de Datos
-Antes de crear una tabla o campo, clasifica la información:
-*   **Pública:** Información visible para todos (ej. Catálogo público).
-*   **Interna:** Visible para usuarios autenticados de la organización.
-*   **Confidencial:** Requiere cifrado en reposo (ej. Datos financieros, contratos, PII).
-*   **Restringida:** Requiere cifrado y auditoría de acceso (ej. Claves privadas, secretos bancarios).
+### 2.1. Data Classification
+Before creating a table or field, classify the information:
+*   **Public:** Information visible to everyone (e.g. Public catalog).
+*   **Internal:** Visible to authenticated users of the organization.
+*   **Confidential:** Requires encryption at rest (e.g. Financial data, contracts, PII).
+*   **Restricted:** Requires encryption and access auditing (e.g. Private keys, banking secrets).
 ```
 
 ### 3.2. Secrets Management
@@ -147,9 +147,9 @@ The policy mandates strict secrets management practices:
 
 **Evidence**:
 ```markdown
-### 2.2. Gestión de Secretos
-*   **Variables de Entorno:** NUNCA commitear secretos en el código. Usar `.env` (local) y Secretos de Supabase (producción).
-*   **Cliente:** No exponer claves secretas (`SERVICE_ROLE_KEY`, `MASTER_ENCRYPTION_KEY`) en el código del cliente (React). Solo usar `ANON_KEY`.
+### 2.2. Secrets Management
+*   **Environment Variables:** NEVER commit secrets in code. Use `.env` (local) and Supabase Secrets (production).
+*   **Client:** Do not expose secret keys (`SERVICE_ROLE_KEY`, `MASTER_ENCRYPTION_KEY`) in client code (React). Only use `ANON_KEY`.
 ```
 
 ---
@@ -211,7 +211,7 @@ The policy includes practical code examples to guide implementation:
 ### 4.2. Ejemplo de Uso (Web Crypto API)
 
 ```typescript
-// Ejemplo conceptual para cifrado simétrico (AES-GCM)
+// Conceptual example for symmetric encryption (AES-GCM)
 async function encryptData(data: string, key: CryptoKey): Promise<{ cipherText: ArrayBuffer, iv: Uint8Array }> {
   const encoder = new TextEncoder();
   const encodedData = encoder.encode(data);
@@ -263,7 +263,7 @@ The policy defines a complete key management workflow for user keys (asymmetric)
 
 **Evidence**:
 ```markdown
-### 6.2. Flujo de Claves de Usuario (Asimétrico)
+### 6.2. User Key Flow (Asymmetric)
 Para permitir cifrado E2EE y firmas digitales:
 1.  **Generación:** El cliente genera un par de claves **RSA-OAEP 4096 bits**.
 2.  **Clave Pública:** Se guarda tal cual en la tabla `app_user` (`public_key`).
@@ -309,7 +309,7 @@ The policy includes detailed security requirements for RFX (Request for X) funct
 
 **Evidence**:
 ```markdown
-### 8.1. Gestión de Claves por Proyecto (RFX)
+### 8.1. Key Management per Project (RFX)
 Cada RFX funciona como un silo criptográfico con su propia clave simétrica.
 1.  **Creación de RFX:**
     *   Se genera una clave simétrica **AES-256-GCM** única para el RFX.
@@ -352,7 +352,7 @@ The policy defines end-to-end encryption for uploaded files:
 
 **Evidence**:
 ```markdown
-### 8.3. Cifrado de Archivos (Imágenes)
+### 8.3. File Encryption (Images)
 Las imágenes subidas a un RFX siguen un proceso de cifrado de extremo a extremo (E2EE) antes de llegar al almacenamiento.
 *   **Bucket:** `rfx-images` (Público a nivel de acceso HTTP, pero contenido ilegible).
 *   **Subida:**
@@ -383,11 +383,11 @@ The policy defines a structured development workflow:
 
 **Evidence**:
 ```markdown
-## 7. Flujo de Trabajo
-1.  **Diseño:** Definir qué datos son sensibles.
-2.  **Desarrollo Local:** Usar `.env.local` para secretos.
-3.  **Revisión:** Verificar que no haya secretos hardcodeados.
-4.  **Despliegue:** Configurar secretos en Supabase Dashboard antes de desplegar Edge Functions.
+## 7. Workflow
+1.  **Design:** Define which data is sensitive.
+2.  **Local Development:** Use `.env.local` for secrets.
+3.  **Review:** Verify that there are no hardcoded secrets.
+4.  **Deployment:** Configure secrets in Supabase Dashboard before deploying Edge Functions.
 ```
 
 ### 8.2. Policy Enforcement
@@ -513,29 +513,29 @@ The policy covers:
 ```
 .cursor/rules/cybersecurity.mdc
 ├── YAML Frontmatter (alwaysApply: true)
-├── 1. Estándares Criptográficos
-│   ├── 1.1. Cifrado Simétrico (AES)
-│   ├── 1.2. Cifrado Asimétrico (RSA)
+├── 1. Cryptographic Standards
+│   ├── 1.1. Symmetric Encryption (AES)
+│   ├── 1.2. Asymmetric Encryption (RSA)
 │   └── 1.3. Hashing
-├── 2. Manejo de Datos y Secretos
-│   ├── 2.1. Clasificación de Datos
-│   └── 2.2. Gestión de Secretos
-├── 3. Seguridad en Base de Datos (Supabase)
+├── 2. Data Handling and Secrets
+│   ├── 2.1. Data Classification
+│   └── 2.2. Secrets Management
+├── 3. Database Security (Supabase)
 │   ├── 3.1. Row Level Security (RLS)
-│   └── 3.2. Extensiones
-├── 4. Implementación en Código
-│   ├── 4.1. Validación de Entradas
-│   └── 4.2. Ejemplo de Uso (Web Crypto API)
-├── 6. Cifrado Maestro y Gestión de Claves (Edge Function)
+│   └── 3.2. Extensions
+├── 4. Code Implementation
+│   ├── 4.1. Input Validation
+│   └── 4.2. Usage Example (Web Crypto API)
+├── 6. Master Encryption and Key Management (Edge Function)
 │   ├── 6.1. Edge Function: crypto-service
-│   ├── 6.2. Flujo de Claves de Usuario (Asimétrico)
-│   └── 6.3. API de crypto-service
-├── 7. Flujo de Trabajo
-└── 8. Implementación Específica RFX
-    ├── 8.1. Gestión de Claves por Proyecto (RFX)
-    ├── 8.2. Cifrado de Datos en RFX
-    ├── 8.3. Cifrado de Archivos (Imágenes)
-    └── 8.4. Sincronización de Carga de Claves
+│   ├── 6.2. User Key Flow (Asymmetric)
+│   └── 6.3. crypto-service API
+├── 7. Workflow
+└── 8. RFX-Specific Implementation
+    ├── 8.1. Key Management per Project (RFX)
+    ├── 8.2. RFX Data Encryption
+    ├── 8.3. File Encryption (Images)
+    └── 8.4. Key Loading Synchronization
 ```
 
 ### B. Policy Enforcement Mechanism

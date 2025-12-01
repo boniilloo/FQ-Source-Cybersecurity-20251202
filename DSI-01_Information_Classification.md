@@ -37,12 +37,12 @@ The platform defines four classification levels:
 **Evidence**:
 ```markdown
 -- .cursor/rules/cybersecurity.mdc
-### 2.1. Clasificación de Datos
-Antes de crear una tabla o campo, clasifica la información:
-*   **Pública:** Información visible para todos (ej. Catálogo público).
-*   **Interna:** Visible para usuarios autenticados de la organización.
-*   **Confidencial:** Requiere cifrado en reposo (ej. Datos financieros, contratos, PII).
-*   **Restringida:** Requiere cifrado y auditoría de acceso (ej. Claves privadas, secretos bancarios).
+### 2.1. Data Classification
+Before creating a table or field, classify the information:
+*   **Public:** Information visible to everyone (e.g. Public catalog).
+*   **Internal:** Visible to authenticated users of the organization.
+*   **Confidential:** Requires encryption at rest (e.g. Financial data, contracts, PII).
+*   **Restricted:** Requires encryption and access auditing (e.g. Private keys, banking secrets).
 ```
 
 ### 1.2. Classification Documentation
@@ -170,8 +170,8 @@ RFX specifications (`description`, `technical_requirements`, `company_requiremen
 **Classification Evidence**:
 ```markdown
 -- .cursor/rules/cybersecurity.mdc
-### 8.2. Cifrado de Datos en RFX
-*   **Campos de Texto:** Los campos sensibles (`description`, `technical_requirements`, `company_requirements`) en la tabla `rfx_specs` y su histórico `rfx_specs_commits` se almacenan cifrados con la clave del RFX.
+### 8.2. RFX Data Encryption
+*   **Text Fields:** Sensitive fields (`description`, `technical_requirements`, `company_requirements`) in the `rfx_specs` table and its history `rfx_specs_commits` are stored encrypted with the RFX key.
 ```
 
 **Implementation Evidence**:
@@ -202,10 +202,10 @@ const handleSave = async () => {
 **Encryption Algorithm**:
 ```markdown
 -- .cursor/rules/cybersecurity.mdc
-### 8.1. Gestión de Claves por Proyecto (RFX)
-Cada RFX funciona como un silo criptográfico con su propia clave simétrica.
-1.  **Creación de RFX:**
-    *   Se genera una clave simétrica **AES-256-GCM** única para el RFX.
+### 8.1. Key Management per Project (RFX)
+Each RFX functions as a cryptographic silo with its own symmetric key.
+1.  **RFX Creation:**
+    *   A unique **AES-256-GCM** symmetric key is generated for the RFX.
 ```
 
 ### 4.2. PII Data Classification
@@ -215,8 +215,8 @@ Personal Identifiable Information (PII) is classified as confidential. User priv
 **Classification Evidence**:
 ```markdown
 -- .cursor/rules/cybersecurity.mdc
-### 1.1. Cifrado Simétrico (AES)
-*   **Uso:** Protección de datos PII (Información Personal Identificable) en base de datos, claves de API almacenadas, y tokens de sesión en almacenamiento local.
+### 1.1. Symmetric Encryption (AES)
+*   **Use:** Protection of PII (Personally Identifiable Information) data in database, stored API keys, and session tokens in local storage.
 ```
 
 **Implementation Evidence**:
@@ -277,14 +277,14 @@ RFX images are classified as confidential and encrypted end-to-end before storag
 **Evidence**:
 ```markdown
 -- .cursor/rules/cybersecurity.mdc
-### 8.3. Cifrado de Archivos (Imágenes)
-Las imágenes subidas a un RFX siguen un proceso de cifrado de extremo a extremo (E2EE) antes de llegar al almacenamiento.
-*   **Bucket:** `rfx-images` (Público a nivel de acceso HTTP, pero contenido ilegible).
-*   **Subida:**
-    1.  El cliente genera un IV único para el archivo.
-    2.  Cifra el binario del archivo con la clave del RFX (AES-256-GCM).
-    3.  Concatena `IV (12 bytes) + Contenido Cifrado`.
-    4.  Sube el archivo con extensión `.enc`.
+### 8.3. File Encryption (Images)
+Images uploaded to an RFX follow an end-to-end encryption (E2EE) process before reaching storage.
+*   **Bucket:** `rfx-images` (Public at HTTP access level, but content unreadable).
+*   **Upload:**
+    1.  The client generates a unique IV for the file.
+    2.  Encrypts the file binary with the RFX key (AES-256-GCM).
+    3.  Concatenates `IV (12 bytes) + Encrypted Content`.
+    4.  Uploads the file with `.enc` extension.
 ```
 
 ---
@@ -307,9 +307,9 @@ User private keys are classified as restricted data, requiring encryption with t
 **Encryption Evidence**:
 ```markdown
 -- .cursor/rules/cybersecurity.mdc
-### 6.2. Flujo de Claves de Usuario (Asimétrico)
-3.  **Clave Privada:** 
-    *   El cliente envía la clave privada (base64) a `crypto-service`.
+### 6.2. User Key Flow (Asymmetric)
+3.  **Private Key:** 
+    *   The client sends the private key (base64) to `crypto-service`.
     *   `crypto-service` la cifra con la `MASTER_ENCRYPTION_KEY`.
     *   El cliente recibe el blob cifrado (`{ data, iv }`) y lo guarda en `app_user` (`encrypted_private_key`).
 ```
@@ -324,14 +324,14 @@ The master encryption key (`MASTER_ENCRYPTION_KEY`) is classified as restricted 
 ### 6.1. Edge Function: `crypto-service`
 *   **Clave Maestra:** `MASTER_ENCRYPTION_KEY` (Stored in Supabase Secrets / .env.local).
 *   **Algoritmo:** AES-256-GCM.
-*   **Uso:** Oráculo de cifrado que nunca revela la clave maestra.
+*   **Use:** Encryption oracle that never reveals the master key.
 ```
 
 **Client Restriction Evidence**:
 ```markdown
 -- .cursor/rules/cybersecurity.mdc
-### 2.2. Gestión de Secretos
-*   **Cliente:** No exponer claves secretas (`SERVICE_ROLE_KEY`, `MASTER_ENCRYPTION_KEY`) en el código del cliente (React). Solo usar `ANON_KEY`.
+### 2.2. Secrets Management
+*   **Client:** Do not expose secret keys (`SERVICE_ROLE_KEY`, `MASTER_ENCRYPTION_KEY`) in client code (React). Only use `ANON_KEY`.
 ```
 
 ### 5.3. RFX Symmetric Keys
@@ -373,12 +373,12 @@ async logSuspiciousActivity(activity: {
   timestamp?: number;
 }): Promise<void> {
   try {
-    // En un entorno real, esto se guardaría en la base de datos
+    // In a real environment, this would be saved to the database
     console.warn('Suspicious activity detected:', activity);
     
-    // Opcional: guardar en Supabase para análisis
-    // Nota: La tabla security_logs no existe en el esquema actual
-    // En un entorno real, se crearía esta tabla o se usaría otra existente
+    // Optional: save to Supabase for analysis
+    // Note: The security_logs table does not exist in the current schema
+    // In a real environment, this table would be created or another existing one would be used
     console.log('Security log entry:', {
       type: activity.type,
       details: activity.details,
@@ -401,13 +401,13 @@ Application logs are primarily handled through console logging. The platform use
 -- docs/RFX_KEY_DISTRIBUTION_IMPLEMENTATION.md
 ## Logs y Monitoreo
 
-El sistema genera logs detallados con prefijos identificables:
+The system generates detailed logs with identifiable prefixes:
 
-### Logs de Envío (RFXSendingPage)
-- `🔐 [RFX Sending]` - Inicio de distribución a developers
-- `✅ [RFX Sending]` - Distribución exitosa a developers
-- `⚠️ [RFX Sending]` - Advertencias durante distribución
-- `❌ [RFX Sending]` - Errores durante distribución
+### Sending Logs (RFXSendingPage)
+- `🔐 [RFX Sending]` - Start of distribution to developers
+- `✅ [RFX Sending]` - Successful distribution to developers
+- `⚠️ [RFX Sending]` - Warnings during distribution
+- `❌ [RFX Sending]` - Errors during distribution
 ```
 
 ---
@@ -460,9 +460,9 @@ CREATE POLICY "Users can view their company data" ON "public"."company"
 **Evidence**:
 ```markdown
 -- .cursor/rules/cybersecurity.mdc
-### 1.1. Cifrado Simétrico (AES)
-Se utilizará **AES-256-GCM** (Advanced Encryption Standard en modo Galois/Counter) para el cifrado de datos en reposo y datos sensibles almacenados localmente.
-*   **Uso:** Protección de datos PII (Información Personal Identificable) en base de datos, claves de API almacenadas, y tokens de sesión en almacenamiento local.
+### 1.1. Symmetric Encryption (AES)
+**AES-256-GCM** (Advanced Encryption Standard in Galois/Counter mode) will be used for encryption of data at rest and sensitive data stored locally.
+*   **Use:** Protection of PII (Personally Identifiable Information) data in database, stored API keys, and session tokens in local storage.
 ```
 
 ### 7.4. Restricted Data Controls
@@ -475,9 +475,9 @@ Se utilizará **AES-256-GCM** (Advanced Encryption Standard en modo Galois/Count
 **Evidence**:
 ```markdown
 -- .cursor/rules/cybersecurity.mdc
-### 2.2. Gestión de Secretos
-*   **Variables de Entorno:** NUNCA commitear secretos en el código. Usar `.env` (local) y Secretos de Supabase (producción).
-*   **Cliente:** No exponer claves secretas (`SERVICE_ROLE_KEY`, `MASTER_ENCRYPTION_KEY`) en el código del cliente (React). Solo usar `ANON_KEY`.
+### 2.2. Secrets Management
+*   **Environment Variables:** NEVER commit secrets in code. Use `.env` (local) and Supabase Secrets (production).
+*   **Client:** Do not expose secret keys (`SERVICE_ROLE_KEY`, `MASTER_ENCRYPTION_KEY`) in client code (React). Only use `ANON_KEY`.
 ```
 
 ---

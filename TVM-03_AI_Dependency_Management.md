@@ -75,10 +75,10 @@ AI models are initialized dynamically using the configuration loaded from the da
 ```python
 // agent/core/cache_manager.py
 def _create_llms(self, llm_params: Dict[str, Any]) -> Tuple:
-    """Crea los LLMs una sola vez con cliente HTTP de la sesión."""
+    """Creates LLMs once with HTTP client from the session."""
     from agent.main import _http, create_http_client, is_http_client_healthy
     
-    # Asegurar que el cliente HTTP esté disponible y activo
+    # Ensure the HTTP client is available and active
     if not is_http_client_healthy():
         create_http_client()
         from agent.main import _http
@@ -265,16 +265,16 @@ The platform includes support for multimodal models, with built-in awareness of 
 // agent/tools/helpers/multimodal_llm.py
 def create_multimodal_llm(model_name: str = "gpt-4o", **kwargs) -> ChatOpenAI:
     """
-    Crea un LLM con capacidades multimodales.
+    Creates an LLM with multimodal capabilities.
     
     Args:
-        model_name: Nombre del modelo (por defecto gpt-4o que soporta visión)
-        **kwargs: Parámetros adicionales para el LLM
+        model_name: Model name (defaults to gpt-4o which supports vision)
+        **kwargs: Additional parameters for the LLM
         
     Returns:
-        ChatOpenAI configurado para multimodal
+        ChatOpenAI configured for multimodal
     """
-    # Asegurar que usamos un modelo con capacidades de visión
+    # Ensure we use a model with vision capabilities
     vision_models = ["gpt-4o", "gpt-4-vision-preview", "gpt-4-turbo"]
     if model_name not in vision_models:
         print(f"[MULTIMODAL_LLM] Warning: {model_name} may not support vision. Consider using gpt-4o")
@@ -314,7 +314,7 @@ The platform implements custom HTTP client management for OpenAI API calls, ensu
 ```python
 // agent/main.py
 def create_http_client():
-    """Crea un nuevo cliente HTTP para la sesión WebSocket."""
+    """Creates a new HTTP client for the WebSocket session."""
     global _http, _openai_client
     
     with _http_lock:

@@ -323,9 +323,9 @@ Personal Identifiable Information (PII) is encrypted at rest using AES-256-GCM e
 **Evidence**:
 ```markdown
 -- .cursor/rules/cybersecurity.mdc
-### 1.1. Cifrado Simétrico (AES)
-Se utilizará **AES-256-GCM** (Advanced Encryption Standard en modo Galois/Counter) para el cifrado de datos en reposo y datos sensibles almacenados localmente.
-*   **Uso:** Protección de datos PII (Información Personal Identificable) en base de datos, claves de API almacenadas, y tokens de sesión en almacenamiento local.
+### 1.1. Symmetric Encryption (AES)
+**AES-256-GCM** (Advanced Encryption Standard in Galois/Counter mode) will be used for encryption of data at rest and sensitive data stored locally.
+*   **Use:** Protection of PII (Personally Identifiable Information) data in database, stored API keys, and session tokens in local storage.
 ```
 
 ### 6.2. Row Level Security (RLS)
@@ -341,9 +341,9 @@ User private keys and sensitive data are encrypted before storage, with private 
 **Evidence**:
 ```markdown
 -- .cursor/rules/cybersecurity.mdc
-### 6.2. Flujo de Claves de Usuario (Asimétrico)
-3.  **Clave Privada:** 
-    *   El cliente envía la clave privada (base64) a `crypto-service`.
+### 6.2. User Key Flow (Asymmetric)
+3.  **Private Key:** 
+    *   The client sends the private key (base64) to `crypto-service`.
     *   `crypto-service` la cifra con la `MASTER_ENCRYPTION_KEY`.
     *   El cliente recibe el blob cifrado (`{ data, iv }`) y lo guarda en `app_user` (`encrypted_private_key`).
 ```

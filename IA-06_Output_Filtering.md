@@ -55,8 +55,8 @@ The platform uses several components to process AI responses:
 ```python
 // agent/core/base_node.py
 def _process_agent_response(self, response, streaming_handler, state) -> Dict[str, Any]:
-    """Procesa la respuesta del agente."""
-    # Señalar el final del streaming
+    """Processes the agent response."""
+    # Signal the end of streaming
     streaming_handler.on_stream_end()
     
     # El create_react_agent devuelve un dict con "messages"

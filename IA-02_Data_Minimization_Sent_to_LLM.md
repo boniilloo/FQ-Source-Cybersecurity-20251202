@@ -68,7 +68,7 @@ def vector_query_tool(
     hnsw_ef_search: int = 64
 ):
     """
-    Realiza una búsqueda semántica usando pgvector de forma eficiente.
+    Performs a semantic search using pgvector efficiently.
     ...
     """
     # ... vector search logic ...
@@ -104,7 +104,7 @@ After vector query returns IDs, the system performs lookups to retrieve full pro
 // agent/tools/get_evaluations.py
 async def lookup_parallel_batched(filtered_ids: List[Dict[str, Any]], ...):
     """
-    Función de lookup paralelo usando lotes pequeños con semáforo.
+    Parallel lookup function using small batches with semaphore.
     """
     # Fetches full product and company data
     pr = await asyncio.wait_for(
@@ -130,7 +130,7 @@ The `DocumentProcessor` class extracts full text content from uploaded documents
 // agent/tools/document_processor.py
 def process_document(self, document_data: str, filename: str) -> Dict[str, Any]:
     """
-    Procesa un documento para extraer texto e imágenes.
+    Processes a document to extract text and images.
     """
     # ... extraction logic ...
     
@@ -285,7 +285,7 @@ The system does implement limits on the number of images sent.
 **Evidence**:
 ```python
 // agent/tools/document_processor.py
-# Limitar a máximo 20 imágenes aleatorias
+# Limit to maximum 20 random images
 if len(all_images) > self.max_images_per_document:
     import random
     images = random.sample(all_images, self.max_images_per_document)
@@ -305,10 +305,10 @@ The system provides several configuration parameters that can control context si
 ```python
 // agent/tools/document_processor.py
 def __init__(self):
-    self.max_file_size = 50 * 1024 * 1024  # 50MB máximo
-    self.max_pages = 100  # Máximo páginas a procesar
-    self.max_text_length = 100000  # Máximo caracteres de texto
-    self.max_images_per_document = 20  # Máximo imágenes por documento
+    self.max_file_size = 50 * 1024 * 1024  # 50MB maximum
+    self.max_pages = 100  # Maximum pages to process
+    self.max_text_length = 100000  # Maximum text characters
+    self.max_images_per_document = 20  # Maximum images per document
 ```
 
 **Analysis**: The system implements hard limits on:

@@ -34,9 +34,9 @@ from pydantic import BaseModel, Field
 
 class GetEvaluationsInput(BaseModel):
     conversation_id: Optional[str] = Field(None, description="Optional conversation_id to use for WebSocket routing. If not provided, will be obtained from context.")
-    query: str = Field(..., description="Consulta o necesidad del usuario")
-    extra_data: Dict[str, Any] = Field(default_factory=dict, description="Datos técnicos adicionales, como tipo de defecto, industria, velocidad, etc.")
-    company_requirements: Optional[str] = Field("", description="Requerimientos específicos para la evaluación de empresas")
+    query: str = Field(..., description="User query or need")
+    extra_data: Dict[str, Any] = Field(default_factory=dict, description="Additional technical data, such as defect type, industry, speed, etc.")
+    company_requirements: Optional[str] = Field("", description="Specific requirements for company evaluation")
 ```
 
 **Analysis**: Pydantic models provide type validation and ensure required fields are present, but they do not perform content sanitization, length validation, or security checks on the input values themselves.
@@ -273,23 +273,23 @@ The platform implements validation for image data, but only for format validatio
 // agent/tools/image_processor.py
 def validate_image_data(image_data: str) -> bool:
     """
-    Valida que los datos de imagen base64 sean válidos.
+    Validates that base64 image data is valid.
     """
     try:
-        # Verificar formato del data URL
+        # Verify data URL format
         if not image_data.startswith('data:image/'):
             return False
             
-        # Extraer el tipo MIME y los datos base64
+        # Extract MIME type and base64 data
         header, encoded = image_data.split(',', 1)
         mime_type = header.split(';')[0].split(':')[1]
         
-        # Verificar tipos MIME soportados
+        # Verify supported MIME types
         supported_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
         if mime_type not in supported_types:
             return False
             
-        # Verificar que los datos base64 sean válidos
+        # Verify that base64 data is valid
         decoded_data = base64.b64decode(encoded)
         
         # Verificar que se puede abrir como imagen

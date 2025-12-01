@@ -38,21 +38,21 @@ class GrafanaLokiClient:
     """
     
     def __init__(self):
-        # Configuración de Grafana Cloud Loki
+        # Grafana Cloud Loki configuration
         self.loki_url = os.getenv("LOKI_URL", "https://logs-prod-012.grafana.net")
         self.loki_user = os.getenv("LOKI_USER", "1293489")
-        self.loki_password = os.getenv("LOKI_PASSWORD")  # Token de API
+        self.loki_password = os.getenv("LOKI_PASSWORD")  # API token
         
         if not self.loki_password:
             raise ValueError("LOKI_PASSWORD environment variable is required")
         
-        # Configurar autenticación básica
+        # Configure basic authentication
         self.auth = (self.loki_user, self.loki_password)
         
-        # Headers para las peticiones
+        # Headers for requests
         self.headers = {
             'Content-Type': 'application/json',
-            'X-Scope-OrgID': 'fqsource'  # Identificador de organización
+            'X-Scope-OrgID': 'fqsource'  # Organization identifier
         }
 ```
 
@@ -70,25 +70,25 @@ All standard output and error streams are automatically intercepted through a `P
 // agent/tools/print_interceptor.py
 class PrintInterceptor:
     """
-    Interceptor que captura todos los prints y los envía a Loki
+    Interceptor that captures all prints and sends them to Loki
     """
     
     def write(self, text):
-        """Intercepta writes a stdout/stderr"""
-        # Escribir al stdout original
+        """Intercepts writes to stdout/stderr"""
+        # Write to original stdout
         self.original_stdout.write(text)
         self.original_stdout.flush()
         
-        # Enviar a Loki si no es un mensaje de Loki y no contiene intermediate_step
+        # Send to Loki if it's not a Loki message and doesn't contain intermediate_step
         if not text.startswith("[LOKI]"):
-            # Filtrar mensajes que contengan intermediate_step
+            # Filter messages containing intermediate_step
             if "intermediate_step" not in text:
                 self._queue_log(text.strip(), "print")
     
     def _queue_log(self, message: str, level: str = "info", labels: Optional[dict] = None):
-        """Añade un log a la cola para procesamiento"""
+        """Adds a log to the queue for processing"""
         if message and message.strip():
-            # Combinar labels globales con labels específicos
+            # Combine global labels with specific labels
             combined_labels = self.global_labels.copy()
             if labels:
                 combined_labels.update(labels)
@@ -149,13 +149,13 @@ WebSocket connection lifecycle events are logged when connections are opened or 
 // api/webserver.py
 def log_connection_event(event_type: str, session_id: str, total_connections: int, client_info: str = None):
     """
-    Envía un log a Loki cuando se abre o cierra una conexión WebSocket
+    Sends a log to Loki when a WebSocket connection is opened or closed
     
     Args:
-        event_type: 'connection_opened' o 'connection_closed'
-        session_id: ID único de la sesión
-        total_connections: Número total de conexiones activas
-        client_info: Información adicional del cliente (opcional)
+        event_type: 'connection_opened' or 'connection_closed'
+        session_id: Unique session ID
+        total_connections: Total number of active connections
+        client_info: Additional client information (optional)
     """
     if loki_client is None:
         return
@@ -199,13 +199,13 @@ System resource usage (CPU and memory) is logged periodically every 5 seconds fo
 // api/webserver.py
 def log_system_usage():
     """
-    Envía un log a Loki con el uso de memoria y CPU del sistema
+    Sends a log to Loki with system memory and CPU usage
     """
     if loki_client is None:
         return
     
     try:
-        # Obtener uso de memoria
+        # Get memory usage
         memory = psutil.virtual_memory()
         cpu_percent = psutil.cpu_percent(interval=1)
         
@@ -231,7 +231,7 @@ def log_system_usage():
 
 def start_system_logging():
     """
-    Inicia el logging periódico de sistema (memoria y CPU) en un hilo separado
+    Starts periodic system logging (memory and CPU) in a separate thread
     """
     def system_logging_worker():
         while ram_logging_active:
@@ -261,10 +261,10 @@ except Exception as e:
     import traceback
     error_traceback = traceback.format_exc()
     
-    print(f"[VECTOR_QUERY] [ERROR] Excepción capturada después de {total_time:.3f}s")
-    print(f"[VECTOR_QUERY] [ERROR] Tipo: {type(e).__name__}")
-    print(f"[VECTOR_QUERY] [ERROR] Mensaje: {str(e)}")
-    print(f"[VECTOR_QUERY] [ERROR] Traceback completo:")
+    print(f"[VECTOR_QUERY] [ERROR] Exception caught after {total_time:.3f}s")
+    print(f"[VECTOR_QUERY] [ERROR] Type: {type(e).__name__}")
+    print(f"[VECTOR_QUERY] [ERROR] Message: {str(e)}")
+    print(f"[VECTOR_QUERY] [ERROR] Full traceback:")
     print(error_traceback)
 
     error_info = {
@@ -314,7 +314,7 @@ if set_conversation_id:
 
 // agent/tools/print_interceptor.py
 def set_conversation_id(conversation_id: str):
-    """Establece el ID de conversación para todos los logs"""
+    """Sets the conversation ID for all logs"""
     if conversation_id:
         set_loki_context({"conversation_id": conversation_id})
     else:
@@ -415,7 +415,7 @@ default_labels = {
 if labels:
     processed_labels = {}
     for key, value in labels.items():
-        # Intentar convertir valores que parecen números a float
+        # Try to convert values that look like numbers to float
         if isinstance(value, str) and self._is_numeric_string(value):
             try:
                 processed_labels[key] = str(float(value))

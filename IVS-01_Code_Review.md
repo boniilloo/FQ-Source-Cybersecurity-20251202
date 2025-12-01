@@ -36,19 +36,19 @@ The platform uses **Cursor AI** as the primary development environment, which pr
 **Evidence**:
 ```markdown
 // .cursor/rules/cybersecurity.mdc
-# Protocolo de Ciberseguridad y Criptografía
+# Cybersecurity and Cryptography Protocol
 
-Este documento define los estándares de seguridad obligatorios para el desarrollo de la plataforma. El objetivo es garantizar la confidencialidad, integridad y disponibilidad de los datos mediante el uso de criptografía robusta y prácticas de desarrollo seguro.
+This document defines the mandatory security standards for platform development. The objective is to guarantee the confidentiality, integrity, and availability of data through the use of robust cryptography and secure development practices.
 ```
 
 **Evidence**:
 ```markdown
 // .cursor/rules/cybersecurity.mdc
-## 4. Implementación en Código
+## 4. Code Implementation
 
-### 4.1. Validación de Entradas
-*   Usar **Zod** para validar estrictamente todos los inputs en formularios y APIs.
-*   Sanitizar entradas para prevenir inyección SQL y XSS.
+### 4.1. Input Validation
+*   Use **Zod** to strictly validate all inputs in forms and APIs.
+*   Sanitize inputs to prevent SQL injection and XSS.
 ```
 
 The cybersecurity rules document provides comprehensive guidance on:
@@ -145,13 +145,13 @@ The platform maintains comprehensive cybersecurity development rules that serve 
 **Evidence**:
 ```markdown
 // .cursor/rules/cybersecurity.mdc
-## 1. Estándares Criptográficos
+## 1. Cryptographic Standards
 
-### 1.1. Cifrado Simétrico (AES)
-Se utilizará **AES-256-GCM** (Advanced Encryption Standard en modo Galois/Counter) para el cifrado de datos en reposo y datos sensibles almacenados localmente.
+### 1.1. Symmetric Encryption (AES)
+**AES-256-GCM** (Advanced Encryption Standard in Galois/Counter mode) will be used for encryption of data at rest and sensitive data stored locally.
 
-### 1.2. Cifrado Asimétrico (RSA)
-Se utilizará **RSA-OAEP** con claves de **4096 bits** para cifrado/descifrado y **RSA-PSS** para firmas digitales.
+### 1.2. Asymmetric Encryption (RSA)
+**RSA-OAEP** with **4096-bit** keys will be used for encryption/decryption and **RSA-PSS** for digital signatures.
 ```
 
 **Evidence**:
@@ -186,7 +186,7 @@ Para crear una migracion, usa siempre supabase migration new <nombre_de_la_migra
 **Evidence**:
 ```markdown
 // .cursor/rules/supabase.mdc
-Cuando estamos trabajando con edge functions hayq que tener supabase functions serve corriendo para que las edge functions se vayan actualizando sobre la marcha.
+When working with edge functions, we need to have supabase functions serve running so that edge functions are updated on the fly.
 ```
 
 ---

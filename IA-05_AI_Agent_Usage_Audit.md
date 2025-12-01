@@ -38,18 +38,18 @@ class GrafanaLokiClient:
     """
     
     def __init__(self):
-        # Configuración de Grafana Cloud Loki
+        # Grafana Cloud Loki configuration
         self.loki_url = os.getenv("LOKI_URL", "https://logs-prod-012.grafana.net")
         self.loki_user = os.getenv("LOKI_USER", "1293489")
-        self.loki_password = os.getenv("LOKI_PASSWORD")  # Token de API
+        self.loki_password = os.getenv("LOKI_PASSWORD")  # API token
         
-        # Configurar autenticación básica
+        # Configure basic authentication
         self.auth = (self.loki_user, self.loki_password)
         
-        # Headers para las peticiones
+        # Headers for requests
         self.headers = {
             'Content-Type': 'application/json',
-            'X-Scope-OrgID': 'fqsource'  # Identificador de organización
+            'X-Scope-OrgID': 'fqsource'  # Organization identifier
         }
 ```
 
@@ -67,7 +67,7 @@ All standard output and error streams are intercepted automatically through a cu
 // agent/tools/print_interceptor.py
 class PrintInterceptor:
     """
-    Interceptor que captura todos los prints y los envía a Loki
+    Interceptor that captures all prints and sends them to Loki
     """
     
     def __init__(self, batch_size: int = 10, batch_timeout: float = 5.0):
@@ -113,13 +113,13 @@ All WebSocket connections are logged with session identifiers and connection lif
 // api/webserver.py
 def log_connection_event(event_type: str, session_id: str, total_connections: int, client_info: str = None):
     """
-    Envía un log a Loki cuando se abre o cierra una conexión WebSocket
+    Sends a log to Loki when a WebSocket connection is opened or closed
     
     Args:
-        event_type: 'connection_opened' o 'connection_closed'
-        session_id: ID único de la sesión
-        total_connections: Número total de conexiones activas
-        client_info: Información adicional del cliente (opcional)
+        event_type: 'connection_opened' or 'connection_closed'
+        session_id: Unique session ID
+        total_connections: Total number of active connections
+        client_info: Additional client information (optional)
     """
     if loki_client is None:
         return
@@ -157,7 +157,7 @@ Every agent interaction is tagged with a `conversation_id` that enables complete
 ```python
 // agent/tools/print_interceptor.py
 def set_conversation_id(conversation_id: str):
-    """Establece el ID de conversación para todos los logs"""
+    """Sets the conversation ID for all logs"""
     if conversation_id:
         set_loki_context({"conversation_id": conversation_id})
     else:
@@ -257,7 +257,7 @@ All tool invocations are logged with their names, inputs, and outputs, providing
 def on_tool_start(self, serialized, input_str=None, **kwargs):
     tool_name = serialized.get("name") if isinstance(serialized, dict) else str(serialized)
     # Emitir mensaje final de preámbulo (confirmación) antes de la llamada
-    final_text = self._pending_preamble_text if (self._pending_preamble_tool == tool_name and self._pending_preamble_text) else f"Llamando a la herramienta '{tool_name}'."
+    final_text = self._pending_preamble_text if (self._pending_preamble_tool == tool_name and self._pending_preamble_text) else f"Calling tool '{tool_name}'."
     self._enqueue({
         "type": "text_preamble",
         "data": final_text,
@@ -323,9 +323,9 @@ Additional labels can be added to provide context-specific filtering.
 ```python
 // agent/tools/print_interceptor.py
 def _queue_log(self, message: str, level: str = "info", labels: Optional[dict] = None):
-    """Añade un log a la cola para procesamiento"""
+    """Adds a log to the queue for processing"""
     if message and message.strip():
-        # Combinar labels globales con labels específicos
+        # Combine global labels with specific labels
         combined_labels = self.global_labels.copy()
         if labels:
             combined_labels.update(labels)
@@ -382,19 +382,19 @@ A dedicated dashboard monitors WebSocket connection lifecycle events and provide
   "title": "WebSocket Connections Monitor",
   "panels": [
     {
-      "title": "Eventos de Conexión por Tipo (últimos 5 minutos)",
+      "title": "Connection Events by Type (last 5 minutes)",
       "targets": [{
         "expr": "sum by (event_type) (count_over_time({component=\"websocket_connection_tracker\"} [5m]))"
       }]
     },
     {
-      "title": "Conexiones Activas Actuales",
+      "title": "Current Active Connections",
       "targets": [{
         "expr": "max by (total_connections) (count_over_time({component=\"websocket_connection_tracker\", event_type=\"connection_opened\"} [1m]))"
       }]
     },
     {
-      "title": "Evolución de Conexiones Activas",
+      "title": "Active Connections Evolution",
       "targets": [{
         "expr": "sum by (total_connections) (count_over_time({component=\"websocket_connection_tracker\"} [1m]))"
       }]

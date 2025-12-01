@@ -75,13 +75,13 @@ The platform follows strict cryptographic standards defined in the security prot
 **Evidence**:
 ```typescript
 // .cursor/rules/cybersecurity.mdc
-### 1.1. Cifrado Simétrico (AES)
-Se utilizará **AES-256-GCM** (Advanced Encryption Standard en modo Galois/Counter) 
-para el cifrado de datos en reposo y datos sensibles almacenados localmente.
-*   **Uso:** Protección de datos PII (Información Personal Identificable) en base de datos, 
-    claves de API almacenadas, y tokens de sesión en almacenamiento local.
-*   **Implementación Cliente:** Usar `window.crypto.subtle` (Web Crypto API).
-*   **Implementación Servidor/Edge:** Usar librerías nativas o `crypto` de Node/Deno.
+### 1.1. Symmetric Encryption (AES)
+**AES-256-GCM** (Advanced Encryption Standard in Galois/Counter mode) 
+will be used for encryption of data at rest and sensitive data stored locally.
+*   **Use:** Protection of PII (Personally Identifiable Information) data in database, 
+    stored API keys, and session tokens in local storage.
+*   **Client Implementation:** Use `window.crypto.subtle` (Web Crypto API).
+*   **Server/Edge Implementation:** Use native libraries or `crypto` from Node/Deno.
 *   **Claves:** Deben ser de 256 bits. Nunca deben almacenarse junto con los datos cifrados.
 ```
 
@@ -276,15 +276,15 @@ RFX images are encrypted end-to-end before storage in Supabase Storage.
 **Evidence**:
 ```typescript
 // .cursor/rules/cybersecurity.mdc
-### 8.3. Cifrado de Archivos (Imágenes)
-Las imágenes subidas a un RFX siguen un proceso de cifrado de extremo a extremo (E2EE) 
-antes de llegar al almacenamiento.
-*   **Bucket:** `rfx-images` (Público a nivel de acceso HTTP, pero contenido ilegible).
-*   **Subida:**
-    1.  El cliente genera un IV único para el archivo.
-    2.  Cifra el binario del archivo con la clave del RFX (AES-256-GCM).
-    3.  Concatena `IV (12 bytes) + Contenido Cifrado`.
-    4.  Sube el archivo con extensión `.enc`.
+### 8.3. File Encryption (Images)
+Images uploaded to an RFX follow an end-to-end encryption (E2EE) 
+process before reaching storage.
+*   **Bucket:** `rfx-images` (Public at HTTP access level, but content unreadable).
+*   **Upload:**
+    1.  The client generates a unique IV for the file.
+    2.  Encrypts the file binary with the RFX key (AES-256-GCM).
+    3.  Concatenates `IV (12 bytes) + Encrypted Content`.
+    4.  Uploads the file with `.enc` extension.
 ```
 
 **Encryption Implementation**:
@@ -365,11 +365,11 @@ private async encrypt(data: string): Promise<string> {
 **Evidence**:
 ```typescript
 // .cursor/rules/cybersecurity.mdc
-### 2.2. Gestión de Secretos
-*   **Variables de Entorno:** NUNCA commitear secretos en el código. 
-    Usar `.env` (local) y Secretos de Supabase (producción).
-*   **Cliente:** No exponer claves secretas (`SERVICE_ROLE_KEY`, `MASTER_ENCRYPTION_KEY`) 
-    en el código del cliente (React). Solo usar `ANON_KEY`.
+### 2.2. Secrets Management
+*   **Environment Variables:** NEVER commit secrets in code. 
+    Use `.env` (local) and Supabase Secrets (production).
+*   **Client:** Do not expose secret keys (`SERVICE_ROLE_KEY`, `MASTER_ENCRYPTION_KEY`) 
+    in client code (React). Only use `ANON_KEY`.
 ```
 
 ### 3.2. Key Rotation and Lifecycle
@@ -418,12 +418,12 @@ The platform classifies data according to sensitivity levels and applies encrypt
 **Evidence**:
 ```markdown
 // .cursor/rules/cybersecurity.mdc
-### 2.1. Clasificación de Datos
-Antes de crear una tabla o campo, clasifica la información:
-*   **Pública:** Información visible para todos (ej. Catálogo público).
-*   **Interna:** Visible para usuarios autenticados de la organización.
-*   **Confidencial:** Requiere cifrado en reposo (ej. Datos financieros, contratos, PII).
-*   **Restringida:** Requiere cifrado y auditoría de acceso (ej. Claves privadas, secretos bancarios).
+### 2.1. Data Classification
+Before creating a table or field, classify the information:
+*   **Public:** Information visible to everyone (e.g. Public catalog).
+*   **Internal:** Visible to authenticated users of the organization.
+*   **Confidential:** Requires encryption at rest (e.g. Financial data, contracts, PII).
+*   **Restricted:** Requires encryption and access auditing (e.g. Private keys, banking secrets).
 ```
 
 ### 4.2. Encrypted Data Fields
@@ -508,7 +508,7 @@ const encryptedBuffer = await crypto.subtle.encrypt(
 ```markdown
 // .cursor/rules/cybersecurity.mdc
 ### 3.2. Extensiones
-*   Utilizar la extensión `pgsodium` de Supabase para operaciones criptográficas 
+*   Use Supabase's `pgsodium` extension for cryptographic operations 
     dentro de la base de datos cuando sea posible.
 ```
 

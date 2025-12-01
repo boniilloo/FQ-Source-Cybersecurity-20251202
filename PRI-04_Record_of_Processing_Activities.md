@@ -123,12 +123,12 @@ The platform defines four classification levels that document data types and pro
 **Evidence**:
 ```markdown
 -- .cursor/rules/cybersecurity.mdc
-### 2.1. Clasificación de Datos
-Antes de crear una tabla o campo, clasifica la información:
-*   **Pública:** Información visible para todos (ej. Catálogo público).
-*   **Interna:** Visible para usuarios autenticados de la organización.
-*   **Confidencial:** Requiere cifrado en reposo (ej. Datos financieros, contratos, PII).
-*   **Restringida:** Requiere cifrado y auditoría de acceso (ej. Claves privadas, secretos bancarios).
+### 2.1. Data Classification
+Before creating a table or field, classify the information:
+*   **Public:** Information visible to everyone (e.g. Public catalog).
+*   **Internal:** Visible to authenticated users of the organization.
+*   **Confidential:** Requires encryption at rest (e.g. Financial data, contracts, PII).
+*   **Restricted:** Requires encryption and access auditing (e.g. Private keys, banking secrets).
 ```
 
 **Processing Documentation**: This classification scheme documents:
@@ -216,19 +216,19 @@ The RFX key distribution implementation document records how RFX data encryption
 -- docs/RFX_KEY_DISTRIBUTION_IMPLEMENTATION.md
 ## Seguridad
 
-### Políticas RLS
+### RLS Policies
 
-Las políticas de Row Level Security están configuradas para:
-- Permitir que el creador de la RFX comparta claves (`rfxs.user_id = auth.uid()`)
-- Permitir que cualquier miembro existente de la RFX comparta claves (existe en `rfx_key_members`)
-- Usar `SECURITY DEFINER` en las funciones RPC para garantizar que las operaciones se ejecuten con privilegios elevados
+Row Level Security policies are configured to:
+- Allow the RFX creator to share keys (`rfxs.user_id = auth.uid()`)
+- Allow any existing RFX member to share keys (exists in `rfx_key_members`)
+- Use `SECURITY DEFINER` in RPC functions to ensure operations execute with elevated privileges
 
-### Cifrado de Extremo a Extremo (E2EE)
+### End-to-End Encryption (E2EE)
 
-1. **Generación:** Cada RFX tiene una clave simétrica única (AES-256-GCM)
-2. **Almacenamiento:** La clave se almacena encriptada con la clave pública RSA-4096 de cada usuario
-3. **Transmisión:** Solo se transmiten claves encriptadas; las claves privadas nunca salen del dispositivo del usuario (excepto para ser cifradas por el servidor maestro)
-4. **Descifrado:** Cada usuario descifra la clave simétrica con su clave privada para acceder al contenido
+1. **Generation:** Each RFX has a unique symmetric key (AES-256-GCM)
+2. **Storage:** The key is stored encrypted with each user's RSA-4096 public key
+3. **Transmission:** Only encrypted keys are transmitted; private keys never leave the user's device (except to be encrypted by the master server)
+4. **Decryption:** Each user decrypts the symmetric key with their private key to access the content
 ```
 
 **Processing Documentation**: This documents:
@@ -244,15 +244,15 @@ The cybersecurity protocol documents user key processing activities:
 **Evidence**:
 ```markdown
 -- .cursor/rules/cybersecurity.mdc
-### 6.2. Flujo de Claves de Usuario (Asimétrico)
-Para permitir cifrado E2EE y firmas digitales:
-1.  **Generación:** El cliente genera un par de claves **RSA-OAEP 4096 bits**.
-2.  **Clave Pública:** Se guarda tal cual en la tabla `app_user` (`public_key`).
-3.  **Clave Privada:** 
-    *   El cliente envía la clave privada (base64) a `crypto-service`.
-    *   `crypto-service` la cifra con la `MASTER_ENCRYPTION_KEY`.
-    *   El cliente recibe el blob cifrado (`{ data, iv }`) y lo guarda en `app_user` (`encrypted_private_key`).
-4.  **Recuperación:** Al iniciar sesión, el cliente descarga el blob cifrado, lo envía a `crypto-service` para descifrarlo, y mantiene la clave privada en memoria (`window.crypto`) durante la sesión.
+### 6.2. User Key Flow (Asymmetric)
+To enable E2EE encryption and digital signatures:
+1.  **Generation:** The client generates an **RSA-OAEP 4096-bit** key pair.
+2.  **Public Key:** Stored as-is in the `app_user` table (`public_key`).
+3.  **Private Key:** 
+    *   The client sends the private key (base64) to `crypto-service`.
+    *   `crypto-service` encrypts it with the `MASTER_ENCRYPTION_KEY`.
+    *   The client receives the encrypted blob (`{ data, iv }`) and stores it in `app_user` (`encrypted_private_key`).
+4.  **Recovery:** When logging in, the client downloads the encrypted blob, sends it to `crypto-service` to decrypt it, and keeps the private key in memory (`window.crypto`) during the session.
 ```
 
 **Processing Documentation**: This documents:

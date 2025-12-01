@@ -382,10 +382,10 @@ The platform implements various technical controls that mitigate AI risks, even 
 ```python
 // agent/tools/document_processor.py
 def __init__(self):
-    self.max_file_size = 50 * 1024 * 1024  # 50MB máximo
-    self.max_pages = 100  # Máximo páginas a procesar
-    self.max_text_length = 100000  # Máximo caracteres de texto
-    self.max_images_per_document = 20  # Máximo imágenes por documento
+    self.max_file_size = 50 * 1024 * 1024  # 50MB maximum
+    self.max_pages = 100  # Maximum pages to process
+    self.max_text_length = 100000  # Maximum text characters
+    self.max_images_per_document = 20  # Maximum images per document
 ```
 
 **Analysis**: Technical controls exist for:

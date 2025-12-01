@@ -32,7 +32,7 @@ The platform uses Python's `ContextVar` to maintain conversation isolation acros
 // agent/tools/context.py
 from contextvars import ContextVar
 
-# Contexto por hilo/tarea para enrutamiento de mensajes por conversación
+# Context per thread/task for message routing by conversation
 current_conversation_id: ContextVar[str | None] = ContextVar("current_conversation_id", default=None)
 ```
 
@@ -45,7 +45,7 @@ Each WebSocket connection receives a unique `conversation_id` that is set at the
 **Evidence**:
 ```python
 // api/webserver.py (lines 421-432)
-# Usar session_id como conversation_id temporal para conversaciones anónimas
+# Use session_id as temporary conversation_id for anonymous conversations
 conversation_id = session_id
 persist_memory = False
 websocket_closed = False
@@ -89,9 +89,9 @@ def save_chat_state(self, conversation_id: str, state: ChatState, encryption_key
     Soporta cifrado si se provee encryption_key.
     
     Args:
-        conversation_id: ID de la conversación
-        state: Estado completo del chat
-        encryption_key: Clave simétrica (base64) para cifrar los datos
+        conversation_id: Conversation ID
+        state: Complete chat state
+        encryption_key: Symmetric key (base64) to encrypt the data
     """
     # ... serialization logic ...
     
@@ -181,7 +181,7 @@ When a conversation is initialized, the system loads only the state associated w
 **Evidence**:
 ```python
 // api/webserver.py (lines 500-506)
-# Cargar el estado completo de la conversación usando la nueva gestión
+# Load the complete conversation state using the new management
 print(f"[WEBSERVER] Loading complete chat state for conversation {conversation_id}")
 current_chat_state = state_persistence.load_chat_state(conversation_id)
 

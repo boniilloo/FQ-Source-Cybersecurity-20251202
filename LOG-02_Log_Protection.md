@@ -43,12 +43,12 @@ class GrafanaLokiClient:
     """
     
     def __init__(self):
-        # Configuración de Grafana Cloud Loki
+        # Grafana Cloud Loki configuration
         self.loki_url = os.getenv("LOKI_URL", "https://logs-prod-012.grafana.net")
         self.loki_user = os.getenv("LOKI_USER", "1293489")
-        self.loki_password = os.getenv("LOKI_PASSWORD")  # Token de API
+        self.loki_password = os.getenv("LOKI_PASSWORD")  # API token
         
-        # Configurar autenticación básica
+        # Configure basic authentication
         self.auth = (self.loki_user, self.loki_password)
 ```
 
@@ -110,7 +110,7 @@ The logged data includes:
 // api/webserver.py
 def log_system_usage():
     """
-    Envía un log a Loki con información sobre el uso de memoria y CPU
+    Sends a log to Loki with information about memory and CPU usage
     """
     message = f"System usage: RSS={system_data['rss_mb']}MB, VMS={system_data['vms_mb']}MB, ProcessMem={system_data['memory_percent']}%, ProcessCPU={system_data['process_cpu_percent']}%, SystemMem={system_data['system_memory_percent']}%, SystemCPU={system_data['system_cpu_percent']}%, ActiveConnections={system_data['active_connections']}, ChildrenMemory={system_data['children_memory_mb']}MB, ChildrenCount={system_data['children_count']}, TotalMemory={system_data['total_memory_mb']}MB"
     

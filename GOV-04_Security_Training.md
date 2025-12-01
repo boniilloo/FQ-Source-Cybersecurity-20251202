@@ -38,9 +38,9 @@ The platform maintains a formal cybersecurity protocol document that serves as a
 ---
 alwaysApply: true
 ---
-# Protocolo de Ciberseguridad y Criptografía
+# Cybersecurity and Cryptography Protocol
 
-Este documento define los estándares de seguridad obligatorios para el desarrollo de la plataforma. El objetivo es garantizar la confidencialidad, integridad y disponibilidad de los datos mediante el uso de criptografía robusta y prácticas de desarrollo seguro.
+This document defines the mandatory security standards for platform development. The objective is to guarantee the confidentiality, integrity, and availability of data through the use of robust cryptography and secure development practices.
 ```
 
 ### 1.2. Security Protocol Coverage
@@ -57,22 +57,22 @@ The security protocol document provides comprehensive coverage of security requi
 
 **Evidence**:
 ```markdown
-## 1. Estándares Criptográficos
+## 1. Cryptographic Standards
 
-### 1.1. Cifrado Simétrico (AES)
-Se utilizará **AES-256-GCM** (Advanced Encryption Standard en modo Galois/Counter) para el cifrado de datos en reposo y datos sensibles almacenados localmente.
+### 1.1. Symmetric Encryption (AES)
+**AES-256-GCM** (Advanced Encryption Standard in Galois/Counter mode) will be used for encryption of data at rest and sensitive data stored locally.
 
-### 1.2. Cifrado Asimétrico (RSA)
-Se utilizará **RSA-OAEP** con claves de **4096 bits** para cifrado/descifrado y **RSA-PSS** para firmas digitales.
+### 1.2. Asymmetric Encryption (RSA)
+**RSA-OAEP** with **4096-bit** keys will be used for encryption/decryption and **RSA-PSS** for digital signatures.
 
-## 2. Manejo de Datos y Secretos
+## 2. Data Handling and Secrets
 
-### 2.1. Clasificación de Datos
-Antes de crear una tabla o campo, clasifica la información:
-*   **Pública:** Información visible para todos (ej. Catálogo público).
-*   **Interna:** Visible para usuarios autenticados de la organización.
-*   **Confidencial:** Requiere cifrado en reposo (ej. Datos financieros, contratos, PII).
-*   **Restringida:** Requiere cifrado y auditoría de acceso (ej. Claves privadas, secretos bancarios).
+### 2.1. Data Classification
+Before creating a table or field, classify the information:
+*   **Public:** Information visible to everyone (e.g. Public catalog).
+*   **Internal:** Visible to authenticated users of the organization.
+*   **Confidential:** Requires encryption at rest (e.g. Financial data, contracts, PII).
+*   **Restricted:** Requires encryption and access auditing (e.g. Private keys, banking secrets).
 ```
 
 ### 1.3. Security Documentation Integration
@@ -354,29 +354,29 @@ The platform maintains the following security documentation:
 ```
 .cursor/rules/cybersecurity.mdc
 ├── YAML Frontmatter (alwaysApply: true)
-├── 1. Estándares Criptográficos
-│   ├── 1.1. Cifrado Simétrico (AES)
-│   ├── 1.2. Cifrado Asimétrico (RSA)
+├── 1. Cryptographic Standards
+│   ├── 1.1. Symmetric Encryption (AES)
+│   ├── 1.2. Asymmetric Encryption (RSA)
 │   └── 1.3. Hashing
-├── 2. Manejo de Datos y Secretos
-│   ├── 2.1. Clasificación de Datos
-│   └── 2.2. Gestión de Secretos
-├── 3. Seguridad en Base de Datos (Supabase)
+├── 2. Data Handling and Secrets
+│   ├── 2.1. Data Classification
+│   └── 2.2. Secrets Management
+├── 3. Database Security (Supabase)
 │   ├── 3.1. Row Level Security (RLS)
-│   └── 3.2. Extensiones
-├── 4. Implementación en Código
-│   ├── 4.1. Validación de Entradas
-│   └── 4.2. Ejemplo de Uso (Web Crypto API)
-├── 6. Cifrado Maestro y Gestión de Claves (Edge Function)
+│   └── 3.2. Extensions
+├── 4. Code Implementation
+│   ├── 4.1. Input Validation
+│   └── 4.2. Usage Example (Web Crypto API)
+├── 6. Master Encryption and Key Management (Edge Function)
 │   ├── 6.1. Edge Function: crypto-service
-│   ├── 6.2. Flujo de Claves de Usuario (Asimétrico)
-│   └── 6.3. API de crypto-service
-├── 7. Flujo de Trabajo
-└── 8. Implementación Específica RFX
-    ├── 8.1. Gestión de Claves por Proyecto (RFX)
-    ├── 8.2. Cifrado de Datos en RFX
-    ├── 8.3. Cifrado de Archivos (Imágenes)
-    └── 8.4. Sincronización de Carga de Claves
+│   ├── 6.2. User Key Flow (Asymmetric)
+│   └── 6.3. crypto-service API
+├── 7. Workflow
+└── 8. RFX-Specific Implementation
+    ├── 8.1. Key Management per Project (RFX)
+    ├── 8.2. RFX Data Encryption
+    ├── 8.3. File Encryption (Images)
+    └── 8.4. Key Loading Synchronization
 ```
 
 Additional security documentation:
