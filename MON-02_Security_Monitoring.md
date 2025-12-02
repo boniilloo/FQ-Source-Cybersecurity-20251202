@@ -806,3 +806,4 @@ The platform monitors the following security event types:
 
 **End of Audit Report - Control MON-02**
 
+
